@@ -19,15 +19,25 @@
 import { ref } from "@vue/reactivity";
 import { watch } from "vue";
 import TodoItem from "./TodoItem.vue";
+import axios from "axios";
 // props:['newItemProps'];
 const props = defineProps(["newItemProps"]);
 
 const a = ref(0);
-const todos = ref([
-  { id: 0, title: "Task 0", completed: true },
-  { id: 1, title: "Task 1", completed: false },
-  { id: 2, title: "Task 2", completed: true },
-]);
+const todos = ref([]);
+
+const getAllTodos = async () => {
+  try {
+    const response = await axios.get(
+      "https://jsonplaceholder.typicode.com/todos?_limit=5"
+    );
+    console.log(response.data);
+    todos.value = response.data;
+  } catch (error) {
+    console.log(error);
+  }
+};
+getAllTodos();
 
 const markCompleted = (id) => {
   todos.value = todos.value.map((todo) => {
@@ -35,9 +45,14 @@ const markCompleted = (id) => {
     return todo;
   });
 };
-const itemDeleted = (id) => {
-  console.log("props", props.newItemProps);
+const itemDeleted = async (id) => {
+
+  try {
+    await axios.delete(`https://jsonplaceholder.typicode.com/todos/${id}`);
   todos.value = todos.value.filter((todo) => todo.id !== id);
+  } catch (error) {
+    console.log(id);
+  }
 };
 
 const addNewItem = (newItem) => {
